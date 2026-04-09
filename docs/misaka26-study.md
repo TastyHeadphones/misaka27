@@ -64,16 +64,23 @@ This report is repository-relative only. It does not use host-specific absolute 
   - `com.apple.security.cs.allow-jit = true`
   - `com.apple.security.get-task-allow = true`
   - `com.apple.security.network.server = true`
-
-Reference:
-
-- [`misaka26.app/Contents/Info.plist`](../misaka26.app/Contents/Info.plist#L25)
+- Additional observed metadata:
+  - `DTPlatformVersion = 26.0`
+  - `DTSDKName = macosx26.0`
+  - `DTXcode = 2601`
+  - `DTXcodeBuild = 17A400`
+  - `CFBundleShortVersionString = 26.1.6`
 
 ### 2) The executable surface is mostly Flutter/Dart
 
 - `misaka26.app/Contents/MacOS/misaka26` exports only `_main`.
 - `App.framework/App` exports only Dart snapshot symbols.
-- The Dart snapshot strings reference:
+- Observed Dart snapshot symbols include:
+  - `_kDartVmSnapshotData`
+  - `_kDartVmSnapshotInstructions`
+  - `_kDartIsolateSnapshotData`
+  - `_kDartIsolateSnapshotInstructions`
+- Observed strings include:
   - `package:misaka26/trollstore.dartr`
   - `simulateTap`
   - `SpringBoard`
@@ -82,17 +89,35 @@ Reference:
 
 ### 3) `MobileGestalt` restore logic is version-sensitive
 
-- `_.py` checks `BuildVersion`, `ProductType`, `ProductVersion`, and `FirmwareVersion` before restoring to the MobileGestalt cache path.
-- `json_restore.py` performs a similar check and also validates `HardwareModel`.
-- `trollpad_patcher.py` searches inside `CacheData` using a fixed index window and then flips a single nibble.
-- `trollpad_patcher.m` resolves the offset from `/usr/lib/libMobileGestalt.dylib` and writes `0x03` for iPad or `0x01` for iPhone.
-
-Reference:
-
-- [`_.py`](../misaka26.app/Contents/Frameworks/App.framework/Resources/flutter_assets/sparserestore/_.py#L40)
-- [`json_restore.py`](../misaka26.app/Contents/Frameworks/App.framework/Resources/flutter_assets/sparserestore/json_restore.py#L25)
-- [`trollpad_patcher.py`](../misaka26.app/Contents/Frameworks/App.framework/Resources/flutter_assets/sparserestore/trollpad_patcher.py#L5)
-- [`trollpad_patcher.m`](../misaka26.app/Contents/Frameworks/App.framework/Resources/flutter_assets/sparserestore/trollpad_patcher.m#L16)
+- The restore target path is:
+  - `/var/containers/Shared/SystemGroup/systemgroup.com.apple.mobilegestaltcache/Library/Caches/com.apple.MobileGestalt.plist`
+- `_.py` validates these `CacheExtra` keys against the connected device:
+  - `mZfUC7qo4pURNhyMHZ62RQ -> BuildVersion`
+  - `h9jDsbgj7xIVeIQ8S3/X3Q -> ProductType`
+  - `qNNddlUK+B/YlooNoymwgA -> ProductVersion`
+  - `LeSRsiLoJCMhjn6nd6GWbQ -> FirmwareVersion`
+- `json_restore.py` validates:
+  - `mZfUC7qo4pURNhyMHZ62RQ -> BuildVersion`
+  - `/YYygAofPDbhrwToVsXdeA -> HardwareModel`
+  - `LeSRsiLoJCMhjn6nd6GWbQ -> FirmwareVersion`
+- `trollpad_patcher.py` uses:
+  - `START_INDEX = 1616`
+  - `SLICE_LENGTH = 200`
+  - regex `0+(?:5555)*([0-9A-F]{4})`
+- `trollpad_patcher.m` uses the obfuscated key `mtrAoWJ3gsq+I90ZnQ0vQw` for `DeviceClassNumber`.
+- The observed write values are:
+  - `0x01 = iPhone`
+  - `0x03 = iPad`
+- The bundled `com.apple.MobileGestalt.plist` contains device-specific values including:
+  - `/YYygAofPDbhrwToVsXdeA = J522AP`
+  - `0+nc/Udy4WNG8S+Q7a/s1A = iPad13,8`
+  - `5pYKlGnYYBzGvAlIU8RjEQ = t8103`
+  - `mZfUC7qo4pURNhyMHZ62RQ = 22B5034e`
+  - `CacheVersion = 22B5034e`
+- `Off.plist` vs `On.plist` differs by one `CacheData` byte:
+  - index `816`
+  - `0x01 -> 0x03`
+- `Off_patched.plist` matches `On.plist` for that patched byte.
 
 ### 4) The package assumes legacy restore/setup artifacts still work
 
@@ -100,37 +125,58 @@ Reference:
   - `SysSharedContainerDomain-systemgroup.com.apple.media.shared.books`
   - `SysSharedContainerDomain-systemgroup.com.apple.configurationprofiles`
   - `ManagedPreferencesDomain`
-- `CloudConfigurationDetails.plist` sets `AllowPairing`, `ConfigurationWasApplied`, `CloudConfigurationUIComplete`, and `PostSetupProfileWasInstalled`.
-- `com.apple.purplebuddy.plist` sets `SetupDone`, `SetupFinishedAllSteps`, and `UserChoseLanguage`.
-
-Reference:
-
-- [`gestalt_restore.py`](../misaka26.app/Contents/Frameworks/App.framework/Resources/flutter_assets/sparserestore/gestalt_restore.py#L78)
-- [`CloudConfigurationDetails.plist`](../misaka26.app/Contents/Resources/sparserestore/dist/arm64/CloudConfigurationDetails.plist#L5)
-- [`com.apple.purplebuddy.plist`](../misaka26.app/Contents/Resources/sparserestore/dist/arm64/com.apple.purplebuddy.plist#L5)
+- The restored files are:
+  - `BLDatabaseManager.sqlite`
+  - `CloudConfigurationDetails.plist`
+  - `com.apple.purplebuddy.plist`
+- Observed `CloudConfigurationDetails.plist` keys:
+  - `AllowPairing = true`
+  - `ConfigurationWasApplied = true`
+  - `CloudConfigurationUIComplete = true`
+  - `PostSetupProfileWasInstalled = true`
+  - `IsSupervised = false`
+  - `ConfigurationSource = 0`
+- Observed `SkipSetup` entries include:
+  - `Restore`
+  - `AppleID`
+  - `Passcode`
+  - `Biometric`
+  - `AppStore`
+  - `RestoreCompleted`
+  - `UpdateCompleted`
+- Observed `com.apple.purplebuddy.plist` keys:
+  - `SetupDone = true`
+  - `SetupFinishedAllSteps = true`
+  - `UserChoseLanguage = true`
+- Observed `BLDatabaseManager.sqlite` tables:
+  - `ZBLDOWNLOADINFO`
+  - `ZBLDOWNLOADPOLICYINFO`
+  - `Z_METADATA`
+  - `Z_MODELCACHE`
+  - `Z_PRIMARYKEY`
 
 ### 5) TrollStore install depends on the Tips system app
 
 - `install_trollstore.py` resolves `com.apple.tips` via `InstallationProxyService.get_apps(application_type="System")`.
 - It then writes to the Tips executable path.
-
-Reference:
-
-- [`install_trollstore.py`](../misaka26.app/Contents/Frameworks/App.framework/Resources/flutter_assets/sparserestore/install_trollstore.py#L19)
+- The observed lookup and path logic is:
+  - bundle id `com.apple.tips`
+  - result field `Path`
+  - target path `${tips_path.replace('/private', '')}/Tips`
 
 ### 6) Eligibility assumptions are encoded in a template
 
-- `eligibility.plist` contains:
+- Observed `eligibility.plist` entries include:
   - `OS_ELIGIBILITY_DOMAIN_CALCIUM`
   - `OS_ELIGIBILITY_DOMAIN_GREYMATTER`
   - `OS_ELIGIBILITY_INPUT_DEVICE_LANGUAGE`
   - `OS_ELIGIBILITY_INPUT_DEVICE_LOCALE`
   - `OS_ELIGIBILITY_INPUT_DEVICE_REGION_CODE`
   - `OS_ELIGIBILITY_INPUT_GENERATIVE_MODEL_SYSTEM`
-
-Reference:
-
-- [`eligibility.plist`](../misaka26.app/Contents/Resources/sparserestore/templates/eligibility.plist#L5)
+- Additional observed values:
+  - `OS_ELIGIBILITY_DOMAIN_CALCIUM.os_eligibility_answer_t = 2`
+  - `OS_ELIGIBILITY_DOMAIN_GREYMATTER.os_eligibility_answer_t = 4`
+  - `OS_ELIGIBILITY_DOMAIN_GREYMATTER.status = 2`
 
 ## Old vs Current Runtime Comparison
 
@@ -143,6 +189,20 @@ Reference:
 | Export surface | Several getters present | Several getters removed | Private API surface changed |
 | Path strings | Present | Present | Path assumptions still exist |
 | Runtime arch | arm64-only | arm64-only | Simulator validation is still architecture-limited |
+
+Observed 26.0-only exported getters from the comparison include:
+
+- `_MobileGestalt_copy_regionInfoFromActivation`
+- `_MobileGestalt_copy_regionInfoFromSysconfig`
+- `_MobileGestalt_copy_regionalBehaviorsFromActivation`
+- `_MobileGestalt_get_allowPhoneApp`
+- `_MobileGestalt_get_audioExclaveMicInputCapability`
+- `_MobileGestalt_get_dataCenterRegionCode`
+- `_MobileGestalt_get_deviceSupportsDarwinInitConfigFromNVRAM`
+- `_MobileGestalt_get_deviceSupportsHandwritingSynthesisModel`
+- `_MobileGestalt_get_fanCount`
+- `_MobileGestalt_get_oSMigrationCapability`
+- `_MobileGestalt_get_uSBPortCount`
 
 ## Root-Cause Hypotheses
 
@@ -181,7 +241,7 @@ Why it is plausible:
 Read-only validation:
 
 ```sh
-plutil -p misaka26.app/Contents/Frameworks/App.framework/Resources/flutter_assets/sparserestore/com.apple.MobileGestalt.plist
+plutil -p <local-copy-of-com.apple.MobileGestalt.plist>
 ```
 
 If a device is attached, compare the values returned by `lockdown.all_values` with the `CacheExtra` keys in the plist. Do not write anything.
@@ -204,9 +264,9 @@ Why it is plausible:
 Read-only validation:
 
 ```sh
-plutil -convert xml1 -o - misaka26.app/Contents/Resources/sparserestore/dist/arm64/CloudConfigurationDetails.plist | nl -ba
-plutil -convert xml1 -o - misaka26.app/Contents/Resources/sparserestore/dist/arm64/com.apple.purplebuddy.plist | nl -ba
-sqlite3 misaka26.app/Contents/Frameworks/App.framework/Resources/flutter_assets/sparserestore/BLDatabaseManager.sqlite '.schema'
+plutil -convert xml1 -o - <local-copy-of-CloudConfigurationDetails.plist> | nl -ba
+plutil -convert xml1 -o - <local-copy-of-com.apple.purplebuddy.plist> | nl -ba
+sqlite3 <local-copy-of-BLDatabaseManager.sqlite> '.schema'
 ```
 
 Expected true:
@@ -226,8 +286,7 @@ Why it is plausible:
 Read-only validation:
 
 ```sh
-misaka26.app/Contents/Resources/sparserestore/dist/arm64/misaka26-get_apps
-misaka26.app/Contents/Resources/sparserestore/dist/x86_64/misaka26-get_apps
+<local-copy-of-misaka26-get_apps>
 ```
 
 If a device is attached, confirm the output includes `com.apple.tips` and compare the reported `Path` to what `install_trollstore.py` expects.
@@ -251,4 +310,3 @@ Expected false:
 ## Residual Gap
 
 The current environment does not have a connected iPhone or iPad, so the live-device `com.apple.tips` inventory check and the `lockdown.all_values` comparison could not be completed here.
-
