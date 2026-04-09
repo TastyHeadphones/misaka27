@@ -8,6 +8,7 @@ This report is repository-relative only. It does not use host-specific absolute 
 - Identify platform assumptions in the bundle and helper tools.
 - Compare the package against the older iOS 26.0 stack and the current iOS 26.4 stack.
 - Provide only read-only validation methods.
+- Inline snippet evidence is collected in `docs/EVIDENCE_APPENDIX.md`.
 
 ## Executive Summary
 

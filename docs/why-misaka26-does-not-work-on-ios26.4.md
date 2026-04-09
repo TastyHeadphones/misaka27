@@ -118,3 +118,4 @@ Those are all brittle across OS updates. When Apple changes any of them, the old
 ## Related Docs
 
 - [docs/misaka26-study.md](misaka26-study.md)
+- [docs/EVIDENCE_APPENDIX.md](EVIDENCE_APPENDIX.md)
