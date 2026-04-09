@@ -9,6 +9,12 @@ Read-only compatibility checker:
 ./scripts/read_only_compat_check.sh --output reports/read_only_compat_report_latest.md
 ```
 
+Full evidence pack (detailed command logs + copied code/plist evidence):
+
+```sh
+./scripts/generate_full_evidence_pack.sh --out-dir evidence/full_pack_latest
+```
+
 Disclosure package template:
 
 - [SECURITY_REPORT.md](SECURITY_REPORT.md)

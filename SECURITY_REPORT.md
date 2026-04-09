@@ -9,6 +9,7 @@ This document provides a responsible-disclosure style package based on read-only
 - No system file, app binary, entitlement, backup, or simulator runtime was modified.
 
 Use `scripts/read_only_compat_check.sh` to regenerate evidence in a reproducible way.
+Use `scripts/generate_full_evidence_pack.sh` to generate a detailed evidence bundle with copied helper code, plist payloads, full command logs, and symbol diffs.
 
 ## Reproduction (Read-Only)
 
@@ -16,11 +17,16 @@ Run from repository root:
 
 ```sh
 ./scripts/read_only_compat_check.sh --output reports/read_only_compat_report_latest.md
+./scripts/generate_full_evidence_pack.sh --out-dir evidence/full_pack_latest
 ```
 
 Artifacts produced:
 
 - `reports/read_only_compat_report_latest.md`
+- `evidence/full_pack_latest/EVIDENCE_INDEX.md`
+- `evidence/full_pack_latest/commands/*.txt`
+- `evidence/full_pack_latest/code/*`
+- `evidence/full_pack_latest/plists/*`
 
 ## Environment Snapshot (example from latest run)
 
@@ -54,6 +60,10 @@ Artifacts produced:
   - `DeviceClassNumber`: `250714` -> `248954`
   - `BuildVersion`: `249971` -> `248190`
 - Export-surface delta exists between 26.0 and 26.4 in `MobileGestalt_*` symbols.
+- The generated evidence pack records the full delta in:
+  - `commands/runtime_mobilegestalt_symbol_delta.txt`
+  - `runtime/only_26_0_mobilegestalt_symbols.txt`
+  - `runtime/only_26_4_mobilegestalt_symbols.txt`
 
 4. Legacy restore/setup assumptions are present in payload logic.
 - Observed keys in payload templates include:
@@ -75,8 +85,12 @@ Artifacts produced:
 
 - Reproducible read-only collection script:
   - `scripts/read_only_compat_check.sh`
+- Detailed read-only evidence bundle script:
+  - `scripts/generate_full_evidence_pack.sh`
 - Generated evidence report path (created locally when script is run):
   - `reports/read_only_compat_report_latest.md`
+- Detailed evidence bundle path (created locally when script is run):
+  - `evidence/full_pack_latest/`
 
 ## What Is Explicitly Excluded
 
