@@ -6,8 +6,10 @@ This App has been updated to bypass metadata checks and cleanly parse private sy
 
 1. Download **`misaka27.zip`** from the GitHub release assets.
 2. Unzip and run `misaka27.app` on your Mac.
-3. Extract `com.apple.MobileGestalt.plist` using the Shortcuts app on your iOS device.
-4. Run the app to dynamically patch your MobileGestalt for TrollPad or TrollStore!
+3. Download the simplified **`SaveMobileGestaltV2.shortcut`** from the [GitHub release page](https://github.com/TastyHeadphones/misaka27/releases/tag/v1.0.0).  
+   - Double-click the file on your Mac to automatically add it to your Shortcuts library. It will sync securely to your iPhone/iPad via iCloud!
+   - Run the shortcut on your iOS device. It will present a file link—simply tap to preview it, Select All > Copy its contents, and return to the shortcut. It will securely pull your `com.apple.MobileGestalt.plist` and allow you to easily AirDrop it instantly to your Mac!
+4. Run `misaka27.app` to dynamically patch your MobileGestalt for TrollPad or TrollStore!
 
 ---
 Repository study notes for `misaka26` are in [docs/misaka26-study.md](docs/misaka26-study.md).
