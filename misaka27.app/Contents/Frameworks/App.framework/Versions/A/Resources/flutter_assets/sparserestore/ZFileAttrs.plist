@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSPersistenceFrameworkVersion</key>
+	<integer>1447</integer>
+	<key>NSStoreModelVersionChecksumKey</key>
+	<string>vqRzVEo55aZmmC735Zch+sLB3jJlcf1KJLGkElyRzyQ=</string>
+	<key>NSStoreModelVersionHashes</key>
+	<dict>
+		<key>BLDownloadInfo</key>
+		<data>
+		tC89JqJ+ckhCnJ1UZvxSkQybQgVRacqvzC7F45bIb2M=
+		</data>
+		<key>BLDownloadPolicyInfo</key>
+		<data>
+		RbuSm13V2m+8pTZ0o3ITcTuVrvnfDFHHCFzB4oPwL3E=
+		</data>
+	</dict>
+	<key>NSStoreModelVersionHashesDigest</key>
+	<string>mJRb7rXZfOnjuAqMPG9iU7BMAdvfrT03yzvx4Hxcbs0z4cnKo5zgrbqQIcUBvLeRzROPlytBI0zJWrTkNF91Ow==</string>
+	<key>NSStoreModelVersionHashesVersion</key>
+	<integer>3</integer>
+	<key>NSStoreModelVersionIdentifiers</key>
+	<array>
+		<string></string>
+	</array>
+	<key>NSStoreType</key>
+	<string>SQLite</string>
+	<key>_NSAutoVacuumLevel</key>
+	<string>2</string>
+</dict>
+</plist>
